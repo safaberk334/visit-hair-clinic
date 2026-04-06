@@ -5,12 +5,13 @@
 document.addEventListener('DOMContentLoaded', () => {
 
   // ── Initialize AOS (Animate on Scroll) ──
+  const isInIframe = window.self !== window.top;
   AOS.init({
-    duration: 800,
+    duration: isInIframe ? 0 : 800,
     easing: 'ease-out-cubic',
     once: true,
-    offset: 80,
-    disable: window.innerWidth < 768 ? 'phone' : false
+    offset: isInIframe ? -9999 : 80,
+    disable: isInIframe ? false : (window.innerWidth < 768 ? 'phone' : false)
   });
 
   // ── Initialize Lucide Icons ──
