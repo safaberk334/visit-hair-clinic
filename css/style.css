@@ -12,6 +12,13 @@
    - Text Light:     #6B7B8D
    ============================================ */
 
+/* ── iframe compatibility: show all AOS elements immediately ── */
+[data-aos] {
+  opacity: 1 !important;
+  transform: none !important;
+  transition: none !important;
+}
+
 /* ── CSS Variables ── */
 :root {
   --color-primary: #64B0D3;
