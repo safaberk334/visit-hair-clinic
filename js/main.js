@@ -264,6 +264,36 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  // ── Results Lightbox ──
+  const lightbox = document.getElementById('lightbox');
+  const lightboxImg = document.getElementById('lightbox-img');
+  const lightboxClose = document.getElementById('lightbox-close');
+  if (lightbox && lightboxImg) {
+    const openLightbox = (src) => {
+      lightboxImg.src = src;
+      lightbox.classList.add('is-open');
+      lightbox.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+    };
+    const closeLightbox = () => {
+      lightbox.classList.remove('is-open');
+      lightbox.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+      setTimeout(() => { if (!lightbox.classList.contains('is-open')) lightboxImg.src = ''; }, 300);
+    };
+    document.querySelectorAll('.result-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const full = item.getAttribute('data-full');
+        if (full) openLightbox(full);
+      });
+    });
+    if (lightboxClose) lightboxClose.addEventListener('click', closeLightbox);
+    lightbox.addEventListener('click', (e) => { if (e.target === lightbox) closeLightbox(); });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && lightbox.classList.contains('is-open')) closeLightbox();
+    });
+  }
+
   // ── Cookie Consent Banner ──
   const cookieBanner = document.getElementById('cookie-banner');
   const cookieAccept = document.getElementById('cookie-accept');

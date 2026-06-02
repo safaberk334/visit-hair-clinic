@@ -78,9 +78,6 @@
   <!-- AOS Animation -->
   <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet">
 
-  <!-- Before/After Slider -->
-  <link rel="stylesheet" href="https://unpkg.com/img-comparison-slider@8/dist/styles.css">
-
   <!-- Lucide Icons (surum sabitlendi: @latest kirilma riskine karsi; defer: render bloke etmesin) -->
   <script defer src="https://unpkg.com/lucide@1.17.0/dist/umd/lucide.js"></script>
 
@@ -343,85 +340,37 @@
         <h2 class="section__title" data-i18n="results_title">Gerçek Hastalar, <span class="text-accent">Gerçek Sonuçlar</span></h2>
         <p class="section__desc" data-i18n="results_desc">Önce ve sonra fotoğraflarıyla operasyonlarımızın sonuçlarını inceleyin.</p>
       </div>
-      <div class="results__grid">
-        <!-- Case 1 -->
-        <div class="result-card" data-aos="fade-up" data-aos-delay="100">
-          <div class="result-card__slider">
-            <img-comparison-slider>
-              <img slot="first" src="img/cases/case-1/WhatsApp Image 2026-03-16 at 21.54.50.jpeg" alt="Önce" loading="lazy">
-              <img slot="second" src="img/cases/case-1/WhatsApp Image 2026-03-16 at 21.56.46.jpeg" alt="Sonra" loading="lazy">
-            </img-comparison-slider>
-          </div>
-          <div class="result-card__info">
-            <span class="result-card__tag">FUE</span>
-            <span class="result-card__detail" data-i18n="case1_detail">Vaka #1 — Erkek, Ön Bölge</span>
-          </div>
-        </div>
-        <!-- Case 2 -->
-        <div class="result-card" data-aos="fade-up" data-aos-delay="200">
-          <div class="result-card__slider">
-            <img-comparison-slider>
-              <img slot="first" src="img/cases/case-2/WhatsApp Image 2026-03-16 at 22.14.29.jpeg" alt="Önce" loading="lazy">
-              <img slot="second" src="img/cases/case-2/66.jpeg" alt="Sonra" loading="lazy">
-            </img-comparison-slider>
-          </div>
-          <div class="result-card__info">
-            <span class="result-card__tag">FUE</span>
-            <span class="result-card__detail" data-i18n="case2_detail">Vaka #2 — Kadın, Saç Çizgisi</span>
-          </div>
-        </div>
-        <!-- Case 3 -->
-        <div class="result-card" data-aos="fade-up" data-aos-delay="300">
-          <div class="result-card__slider">
-            <img-comparison-slider>
-              <img slot="first" src="img/cases/case-3/WhatsApp Image 2026-03-16 at 22.18.58.jpeg" alt="Önce" loading="lazy">
-              <img slot="second" src="img/cases/case-3/aa.jpeg" alt="Sonra" loading="lazy">
-            </img-comparison-slider>
-          </div>
-          <div class="result-card__info">
-            <span class="result-card__tag">DHI</span>
-            <span class="result-card__detail" data-i18n="case3_detail">Vaka #3 — Erkek, Ön Bölge</span>
-          </div>
-        </div>
-        <!-- Case 4 -->
-        <div class="result-card" data-aos="fade-up" data-aos-delay="100">
-          <div class="result-card__slider">
-            <img-comparison-slider>
-              <img slot="first" src="img/cases/case-4/WhatsApp Image 2026-03-16 at 22.28.26.jpeg" alt="Önce" loading="lazy">
-              <img slot="second" src="img/cases/case-4/aas.jpeg" alt="Sonra" loading="lazy">
-            </img-comparison-slider>
-          </div>
-          <div class="result-card__info">
-            <span class="result-card__tag">Safir FUE</span>
-            <span class="result-card__detail" data-i18n="case4_detail">Vaka #4 — Erkek, Tepe Bölge</span>
-          </div>
-        </div>
-        <!-- Case 5 -->
-        <div class="result-card" data-aos="fade-up" data-aos-delay="200">
-          <div class="result-card__slider">
-            <img-comparison-slider>
-              <img slot="first" src="img/cases/case-5/WhatsApp Image 2026-03-16 at 22.29.31.jpeg" alt="Önce" loading="lazy">
-              <img slot="second" src="img/cases/case-5/as.jpeg" alt="Sonra" loading="lazy">
-            </img-comparison-slider>
-          </div>
-          <div class="result-card__info">
-            <span class="result-card__tag">FUE</span>
-            <span class="result-card__detail" data-i18n="case5_detail">Vaka #5 — Erkek, Ön Bölge</span>
-          </div>
-        </div>
-        <!-- Case 6 -->
-        <div class="result-card" data-aos="fade-up" data-aos-delay="300">
-          <div class="result-card__slider">
-            <img-comparison-slider>
-              <img slot="first" src="img/cases/case-6/WhatsApp Image 2026-03-16 at 22.30.58.jpeg" alt="Önce" loading="lazy">
-              <img slot="second" src="img/cases/case-6/as.jpeg" alt="Sonra" loading="lazy">
-            </img-comparison-slider>
-          </div>
-          <div class="result-card__info">
-            <span class="result-card__tag">FUE</span>
-            <span class="result-card__detail" data-i18n="case6_detail">Vaka #6 — Erkek, Ön Bölge</span>
-          </div>
-        </div>
+      <div class="results__gallery">
+        <button class="result-item" data-aos="fade-up" data-aos-delay="100" data-full="img/results/result-1.jpg" aria-label="Sonuç 1 — büyüt">
+          <img src="img/results/result-1.jpg" alt="Saç ekimi öncesi ve sonrası — FUE sonucu" loading="lazy" width="1080" height="1161">
+          <span class="result-item__tag">FUE</span>
+          <span class="result-item__zoom" aria-hidden="true"><i data-lucide="zoom-in"></i></span>
+        </button>
+        <button class="result-item" data-aos="fade-up" data-aos-delay="200" data-full="img/results/result-2.jpg" aria-label="Sonuç 2 — büyüt">
+          <img src="img/results/result-2.jpg" alt="Saç ekimi öncesi ve sonrası — Safir FUE sonucu" loading="lazy" width="1200" height="1290">
+          <span class="result-item__tag">Safir FUE</span>
+          <span class="result-item__zoom" aria-hidden="true"><i data-lucide="zoom-in"></i></span>
+        </button>
+        <button class="result-item" data-aos="fade-up" data-aos-delay="300" data-full="img/results/result-3.jpg" aria-label="Sonuç 3 — büyüt">
+          <img src="img/results/result-3.jpg" alt="Saç ekimi öncesi ve sonrası — DHI sonucu" loading="lazy" width="1200" height="1290">
+          <span class="result-item__tag">DHI</span>
+          <span class="result-item__zoom" aria-hidden="true"><i data-lucide="zoom-in"></i></span>
+        </button>
+        <button class="result-item" data-aos="fade-up" data-aos-delay="100" data-full="img/results/result-4.jpg" aria-label="Sonuç 4 — büyüt">
+          <img src="img/results/result-4.jpg" alt="Saç ekimi öncesi ve sonrası — FUE sonucu" loading="lazy" width="1080" height="1161">
+          <span class="result-item__tag">FUE</span>
+          <span class="result-item__zoom" aria-hidden="true"><i data-lucide="zoom-in"></i></span>
+        </button>
+        <button class="result-item" data-aos="fade-up" data-aos-delay="200" data-full="img/results/result-5.jpg" aria-label="Sonuç 5 — büyüt">
+          <img src="img/results/result-5.jpg" alt="Saç ekimi öncesi ve sonrası — Safir FUE sonucu" loading="lazy" width="1200" height="1290">
+          <span class="result-item__tag">Safir FUE</span>
+          <span class="result-item__zoom" aria-hidden="true"><i data-lucide="zoom-in"></i></span>
+        </button>
+        <button class="result-item" data-aos="fade-up" data-aos-delay="300" data-full="img/results/result-6.jpg" aria-label="Sonuç 6 — büyüt">
+          <img src="img/results/result-6.jpg" alt="Saç ekimi öncesi ve sonrası — DHI sonucu" loading="lazy" width="1080" height="1161">
+          <span class="result-item__tag">DHI</span>
+          <span class="result-item__zoom" aria-hidden="true"><i data-lucide="zoom-in"></i></span>
+        </button>
       </div>
     </div>
   </section>
@@ -719,9 +668,16 @@
     </div>
   </div>
 
+  <!-- ============================================ -->
+  <!-- LIGHTBOX (sonuc gorseli buyutme) -->
+  <!-- ============================================ -->
+  <div class="lightbox" id="lightbox" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Sonuç görseli">
+    <button class="lightbox__close" id="lightbox-close" aria-label="Kapat">&times;</button>
+    <img class="lightbox__img" id="lightbox-img" src="" alt="Saç ekimi öncesi ve sonrası sonucu">
+  </div>
+
   <!-- Scripts -->
   <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
-  <script type="module" src="https://unpkg.com/img-comparison-slider@8/dist/index.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>
