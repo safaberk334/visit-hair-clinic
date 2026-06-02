@@ -476,10 +476,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let currentLang = 'tr';
 
-  const switchLanguage = (lang) => {
-    currentLang = lang;
+  const ogLocaleByLang = { tr: 'tr_TR', en: 'en_US', ar: 'ar_SA' };
+
+  const switchLanguage = (lang, updateUrl = true) => {
     const t = translations[lang];
     if (!t) return;
+    currentLang = lang;
 
     // Update all elements with data-i18n
     document.querySelectorAll('[data-i18n]').forEach(el => {
@@ -501,6 +503,16 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.lang-btn, .lang-btn-sm').forEach(btn => {
       btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
     });
+
+    // Persist choice + reflect in URL (helps SEO / hreflang and sharing)
+    try { localStorage.setItem('lang', lang); } catch (e) { /* ignore */ }
+    const ogLocale = document.querySelector('meta[property="og:locale"]');
+    if (ogLocale && ogLocaleByLang[lang]) ogLocale.setAttribute('content', ogLocaleByLang[lang]);
+    if (updateUrl && window.history && window.history.replaceState) {
+      const url = new URL(window.location.href);
+      url.searchParams.set('lang', lang);
+      window.history.replaceState({}, '', url);
+    }
   };
 
   // Bind language buttons
@@ -509,5 +521,27 @@ document.addEventListener('DOMContentLoaded', () => {
       switchLanguage(btn.getAttribute('data-lang'));
     });
   });
+
+  // ── Initial language: ?lang= param > saved choice > browser language > 'tr' ──
+  const detectInitialLang = () => {
+    const supported = ['tr', 'en', 'ar'];
+    const urlLang = new URLSearchParams(window.location.search).get('lang');
+    if (urlLang && supported.includes(urlLang)) return urlLang;
+    let saved = null;
+    try { saved = localStorage.getItem('lang'); } catch (e) { /* ignore */ }
+    if (saved && supported.includes(saved)) return saved;
+    const nav = (navigator.language || 'tr').slice(0, 2).toLowerCase();
+    if (supported.includes(nav)) return nav;
+    return 'tr';
+  };
+
+  const initialLang = detectInitialLang();
+  if (initialLang !== 'tr') {
+    switchLanguage(initialLang, false);
+  } else {
+    // ensure html lang/dir + og:locale are correct for default
+    document.documentElement.lang = 'tr';
+    document.documentElement.dir = 'ltr';
+  }
 
 });
