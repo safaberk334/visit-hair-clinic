@@ -24,10 +24,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const handleScroll = () => {
     if (window.scrollY > 50) {
       header.classList.add('header--scrolled');
-      logoImg.src = 'img/logo/logo-dark.png';
     } else {
       header.classList.remove('header--scrolled');
-      logoImg.src = 'img/logo/logo-dark.png';
     }
   };
 
@@ -131,62 +129,125 @@ document.addEventListener('DOMContentLoaded', () => {
 
   window.addEventListener('scroll', highlightNav, { passive: true });
 
-  // ── Contact Form Handling ──
+  // ── Contact Form Handling (Formspree) ──
   const form = document.getElementById('contact-form');
   if (form) {
-    form.addEventListener('submit', (e) => {
+    const successByLang = { tr: 'Gönderildi!', en: 'Sent!', ar: 'تم الإرسال!' };
+    const errorByLang = { tr: 'Hata oluştu, tekrar deneyin', en: 'Error, please retry', ar: 'حدث خطأ، حاول مرة أخرى' };
+
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
 
-      const formData = new FormData(form);
-      const data = Object.fromEntries(formData);
-
-      // For now, show success message and log data
-      console.log('Form submitted:', data);
-
-      // Create success message
       const btn = form.querySelector('button[type="submit"]');
       const originalText = btn.innerHTML;
-      btn.innerHTML = '<i data-lucide="check-circle"></i> <span>G&ouml;nderildi!</span>';
-      btn.style.background = 'linear-gradient(135deg, #25D366, #128C7E)';
-      lucide.createIcons();
+      const action = form.getAttribute('action') || '';
 
-      setTimeout(() => {
+      const showState = (text, color) => {
+        btn.innerHTML = `<i data-lucide="check-circle"></i> <span>${text}</span>`;
+        btn.style.background = color;
+        lucide.createIcons();
+      };
+      const reset = (doResetForm) => setTimeout(() => {
         btn.innerHTML = originalText;
         btn.style.background = '';
         lucide.createIcons();
-        form.reset();
+        if (doResetForm) form.reset();
       }, 3000);
+
+      // If Formspree endpoint not yet configured, fail gracefully (no real send)
+      if (action.includes('YOUR_FORM_ID') || !action) {
+        console.warn('Formspree endpoint henüz ayarlanmadı (action="YOUR_FORM_ID"). Form gönderilmedi.');
+        console.log('Form data:', Object.fromEntries(new FormData(form)));
+        showState(successByLang[currentLang] || successByLang.tr, 'linear-gradient(135deg, #25D366, #128C7E)');
+        reset(true);
+        return;
+      }
+
+      btn.disabled = true;
+      try {
+        const res = await fetch(action, {
+          method: 'POST',
+          body: new FormData(form),
+          headers: { Accept: 'application/json' }
+        });
+        if (res.ok) {
+          showState(successByLang[currentLang] || successByLang.tr, 'linear-gradient(135deg, #25D366, #128C7E)');
+          reset(true);
+        } else {
+          showState(errorByLang[currentLang] || errorByLang.tr, 'linear-gradient(135deg, #E42320, #B91C1A)');
+          reset(false);
+        }
+      } catch (err) {
+        console.error('Form submit error:', err);
+        showState(errorByLang[currentLang] || errorByLang.tr, 'linear-gradient(135deg, #E42320, #B91C1A)');
+        reset(false);
+      } finally {
+        setTimeout(() => { btn.disabled = false; }, 3000);
+      }
     });
   }
 
-  // ── Particle Background Effect ──
+  // ── Bubble Background Effect ──
   const particleContainer = document.getElementById('particles');
   if (particleContainer) {
-    for (let i = 0; i < 30; i++) {
-      const particle = document.createElement('div');
-      particle.className = 'particle';
-      particle.style.cssText = `
+    const bubbleCount = 22;
+
+    for (let i = 0; i < bubbleCount; i++) {
+      const bubble = document.createElement('div');
+      bubble.className = 'bubble';
+      const size = Math.random() * 10 + 4; // 4-14px
+      const duration = Math.random() * 14 + 14; // 14-28s (slow, elegant)
+      const delay = Math.random() * 10;
+      const drift = (Math.random() - 0.5) * 80;
+      const startX = Math.random() * 100;
+
+      // Mix of medical blue, sage green, very subtle red
+      const colorPool = [
+        `rgba(0,119,182,${Math.random() * 0.07 + 0.03})`,  // blue
+        `rgba(0,119,182,${Math.random() * 0.05 + 0.02})`,  // lighter blue
+        `rgba(196,219,198,${Math.random() * 0.10 + 0.04})`, // sage
+        `rgba(228,35,32,${Math.random() * 0.03 + 0.01})`,   // very subtle red
+      ];
+      const color = colorPool[Math.floor(Math.random() * colorPool.length)];
+
+      bubble.style.cssText = `
         position: absolute;
-        width: ${Math.random() * 4 + 1}px;
-        height: ${Math.random() * 4 + 1}px;
-        background: rgba(100,176,211,${Math.random() * 0.3 + 0.1});
+        width: ${size}px;
+        height: ${size}px;
+        background: ${color};
+        border: 1px solid rgba(0,119,182,${Math.random() * 0.06 + 0.02});
         border-radius: 50%;
-        left: ${Math.random() * 100}%;
-        top: ${Math.random() * 100}%;
-        animation: float ${Math.random() * 10 + 10}s linear infinite;
-        animation-delay: ${Math.random() * 5}s;
+        left: ${startX}%;
+        bottom: -20px;
+        animation: bubbleRise ${duration}s ease-in-out infinite;
+        animation-delay: ${delay}s;
+        --drift: ${drift}px;
       `;
-      particleContainer.appendChild(particle);
+      particleContainer.appendChild(bubble);
     }
 
-    // Add float animation
     const style = document.createElement('style');
     style.textContent = `
-      @keyframes float {
-        0% { transform: translateY(0) translateX(0); opacity: 0; }
-        10% { opacity: 1; }
-        90% { opacity: 1; }
-        100% { transform: translateY(-100vh) translateX(${Math.random() > 0.5 ? '' : '-'}50px); opacity: 0; }
+      @keyframes bubbleRise {
+        0% {
+          transform: translateY(0) translateX(0) scale(0.6);
+          opacity: 0;
+        }
+        10% {
+          opacity: 1;
+          transform: translateY(-10vh) translateX(calc(var(--drift) * 0.1)) scale(0.8);
+        }
+        50% {
+          transform: translateY(-50vh) translateX(var(--drift)) scale(1);
+        }
+        90% {
+          opacity: 1;
+          transform: translateY(-90vh) translateX(calc(var(--drift) * 0.8)) scale(0.9);
+        }
+        100% {
+          transform: translateY(-105vh) translateX(var(--drift)) scale(0.6);
+          opacity: 0;
+        }
       }
     `;
     document.head.appendChild(style);
@@ -202,6 +263,29 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   });
+
+  // ── Cookie Consent Banner ──
+  const cookieBanner = document.getElementById('cookie-banner');
+  const cookieAccept = document.getElementById('cookie-accept');
+  const cookieDecline = document.getElementById('cookie-decline');
+
+  if (cookieBanner && !localStorage.getItem('cookieConsent')) {
+    setTimeout(() => cookieBanner.classList.add('visible'), 1500);
+  }
+
+  if (cookieAccept) {
+    cookieAccept.addEventListener('click', () => {
+      localStorage.setItem('cookieConsent', 'accepted');
+      cookieBanner.classList.remove('visible');
+    });
+  }
+
+  if (cookieDecline) {
+    cookieDecline.addEventListener('click', () => {
+      localStorage.setItem('cookieConsent', 'declined');
+      cookieBanner.classList.remove('visible');
+    });
+  }
 
   // ── Language Switcher ──
   const translations = {
