@@ -32,23 +32,39 @@ document.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('scroll', handleScroll, { passive: true });
   handleScroll();
 
-  // ── Mobile Navigation ──
+  // ── Mobile Navigation (sagdan kayan drawer) ──
   const hamburger = document.getElementById('hamburger');
   const nav = document.getElementById('nav');
 
+  // Drawer arka plan karartmasi
+  const backdrop = document.createElement('div');
+  backdrop.className = 'nav-backdrop';
+  document.body.appendChild(backdrop);
+
+  const openNav = () => {
+    hamburger.classList.add('active');
+    nav.classList.add('active');
+    backdrop.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  };
+  const closeNav = () => {
+    hamburger.classList.remove('active');
+    nav.classList.remove('active');
+    backdrop.classList.remove('active');
+    document.body.style.overflow = '';
+  };
+
   hamburger.addEventListener('click', () => {
-    hamburger.classList.toggle('active');
-    nav.classList.toggle('active');
-    document.body.style.overflow = nav.classList.contains('active') ? 'hidden' : '';
+    nav.classList.contains('active') ? closeNav() : openNav();
   });
 
-  // Close nav on link click
+  // Karartmaya tikla / linke tikla / ESC -> kapat
+  backdrop.addEventListener('click', closeNav);
   nav.querySelectorAll('.header__link').forEach(link => {
-    link.addEventListener('click', () => {
-      hamburger.classList.remove('active');
-      nav.classList.remove('active');
-      document.body.style.overflow = '';
-    });
+    link.addEventListener('click', closeNav);
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && nav.classList.contains('active')) closeNav();
   });
 
   // ── Animated Counters ──
@@ -129,61 +145,49 @@ document.addEventListener('DOMContentLoaded', () => {
 
   window.addEventListener('scroll', highlightNav, { passive: true });
 
-  // ── Contact Form Handling (Formspree) ──
+  // ── Contact Form Handling (WhatsApp yönlendirme) ──
+  // Form girdileri bir WhatsApp mesajına dönüştürülür ve wa.me ile açılır.
+  // Mail/Formspree altyapısı gerekmez; fotoğraflar sohbette eklenir.
+  const WHATSAPP_NUMBER = '905078814325';
   const form = document.getElementById('contact-form');
   if (form) {
-    const successByLang = { tr: 'Gönderildi!', en: 'Sent!', ar: 'تم الإرسال!' };
-    const errorByLang = { tr: 'Hata oluştu, tekrar deneyin', en: 'Error, please retry', ar: 'حدث خطأ، حاول مرة أخرى' };
+    const openByLang = { tr: 'WhatsApp açılıyor…', en: 'Opening WhatsApp…', ar: 'يتم فتح واتساب…' };
 
-    form.addEventListener('submit', async (e) => {
+    // Mesaj alan etiketleri (dile göre)
+    const labels = {
+      tr: { title: 'Ücretsiz Konsültasyon Talebi', name: 'Ad Soyad', email: 'E-posta', phone: 'Telefon', country: 'Ülke', message: 'Mesaj' },
+      en: { title: 'Free Consultation Request', name: 'Name', email: 'Email', phone: 'Phone', country: 'Country', message: 'Message' },
+      ar: { title: 'طلب استشارة مجانية', name: 'الاسم', email: 'البريد', phone: 'الهاتف', country: 'الدولة', message: 'الرسالة' }
+    };
+
+    form.addEventListener('submit', (e) => {
       e.preventDefault();
+
+      const L = labels[currentLang] || labels.tr;
+      const data = Object.fromEntries(new FormData(form));
+      const lines = [`*${L.title}*`, ''];
+      if (data.name)    lines.push(`${L.name}: ${data.name}`);
+      if (data.email)   lines.push(`${L.email}: ${data.email}`);
+      if (data.phone)   lines.push(`${L.phone}: ${data.phone}`);
+      if (data.country) lines.push(`${L.country}: ${data.country}`);
+      if (data.message) lines.push(`${L.message}: ${data.message}`);
+
+      const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(lines.join('\n'))}`;
 
       const btn = form.querySelector('button[type="submit"]');
       const originalText = btn.innerHTML;
-      const action = form.getAttribute('action') || '';
+      btn.innerHTML = `<i data-lucide="check-circle"></i> <span>${openByLang[currentLang] || openByLang.tr}</span>`;
+      btn.style.background = 'linear-gradient(135deg, #25D366, #128C7E)';
+      lucide.createIcons();
 
-      const showState = (text, color) => {
-        btn.innerHTML = `<i data-lucide="check-circle"></i> <span>${text}</span>`;
-        btn.style.background = color;
-        lucide.createIcons();
-      };
-      const reset = (doResetForm) => setTimeout(() => {
+      window.open(url, '_blank', 'noopener');
+
+      setTimeout(() => {
         btn.innerHTML = originalText;
         btn.style.background = '';
         lucide.createIcons();
-        if (doResetForm) form.reset();
+        form.reset();
       }, 3000);
-
-      // If Formspree endpoint not yet configured, fail gracefully (no real send)
-      if (action.includes('YOUR_FORM_ID') || !action) {
-        console.warn('Formspree endpoint henüz ayarlanmadı (action="YOUR_FORM_ID"). Form gönderilmedi.');
-        console.log('Form data:', Object.fromEntries(new FormData(form)));
-        showState(successByLang[currentLang] || successByLang.tr, 'linear-gradient(135deg, #25D366, #128C7E)');
-        reset(true);
-        return;
-      }
-
-      btn.disabled = true;
-      try {
-        const res = await fetch(action, {
-          method: 'POST',
-          body: new FormData(form),
-          headers: { Accept: 'application/json' }
-        });
-        if (res.ok) {
-          showState(successByLang[currentLang] || successByLang.tr, 'linear-gradient(135deg, #25D366, #128C7E)');
-          reset(true);
-        } else {
-          showState(errorByLang[currentLang] || errorByLang.tr, 'linear-gradient(135deg, #E42320, #B91C1A)');
-          reset(false);
-        }
-      } catch (err) {
-        console.error('Form submit error:', err);
-        showState(errorByLang[currentLang] || errorByLang.tr, 'linear-gradient(135deg, #E42320, #B91C1A)');
-        reset(false);
-      } finally {
-        setTimeout(() => { btn.disabled = false; }, 3000);
-      }
     });
   }
 
@@ -339,7 +343,7 @@ document.addEventListener('DOMContentLoaded', () => {
       about_label: "HAKKIMIZDA",
       about_title: "Türkiye'nin <span class=\"text-accent\">Güvenilir Saç Ekim Kliniği</span>",
       about_text1: "Visit Hair Clinic, 9 yılı aşkın saha deneyimi ve 5.000'den fazla başarılı operasyonla Türkiye'nin önde gelen saç ekim kliniklerinden biridir. İstanbul'daki modern merkezimizde, dünyanın dört bir yanından gelen misafirlerimize doğal ve kalıcı sonuçlar sunuyoruz.",
-      about_text2: "FUE, DHI ve Safir FUE başta olmak üzere en güncel tekniklerle; kişiye özel saç çizgisi tasarımı, uzman ekip ve uçtan uca planlanmış bir deneyim sağlıyoruz. Kurucumuz ve baş uzmanımız Sedat Kuren öncülüğünde; hijyen, güven ve estetik her zaman önceliğimizdir.",
+      about_text2: "FUE, DHI ve Safir FUE başta olmak üzere en güncel tekniklerle; kişiye özel saç çizgisi tasarımı, uzman ekip ve uçtan uca planlanmış bir deneyim sağlıyoruz. Sedat Kuren öncülüğünde hijyen, güven ve estetik her zaman önceliğimizdir.",
       about_badge: "Yıllık Deneyim",
       about_f1_title: "Modern Klinik & Hijyen",
       about_f1_text: "Steril ameliyathane standartları",
@@ -418,7 +422,7 @@ document.addEventListener('DOMContentLoaded', () => {
       country_sa: "S. Arabistan",
       country_it: "İtalya",
       country_jo: "Ürdün",
-      country_ae: "Dubai",
+      country_ae: "Birleşik Arap Emirlikleri",
       test_label: "REFERANSLAR",
       test_title: "Hastalarımız <span class=\"text-accent\">Ne Diyor?</span>",
       test1_text: "\"Operasyon sürecinin başından sonuna kadar profesyonel bir deneyimdi. Sonuçlardan çok memnunum. Sedat Bey ve ekibi harika bir iş çıkardı.\"",
@@ -449,6 +453,21 @@ document.addEventListener('DOMContentLoaded', () => {
       cookie_text: "Bu web sitesi, deneyiminizi iyileştirmek için çerezler kullanmaktadır. Sitemizi kullanarak <a href=\"privacy.html\">Gizlilik Politikası</a> ve <a href=\"kvkk.html\">KVKK Aydınlatma Metni</a>'ni kabul etmiş sayılırsınız.",
       cookie_accept: "Kabul Et",
       cookie_decline: "Reddet",
+      faq_label: "SIKÇA SORULAN SORULAR",
+      faq_title: "Aklınızdaki <span class=\"text-accent\">Sorular</span>",
+      faq_desc: "Saç ekimi hakkında en çok merak edilenleri sizin için yanıtladık.",
+      faq_q1: "Saç ekimi acı verir mi?",
+      faq_a1: "Operasyon lokal anestezi altında yapılır, bu sayede işlem sırasında ağrı hissetmezsiniz. Sonrasında oluşabilecek hafif hassasiyet ise reçete edilen ağrı kesicilerle kolayca kontrol altına alınır.",
+      faq_q2: "Saç ekimi ne kadar sürer, kaç greft gerekir?",
+      faq_a2: "Operasyon genellikle 6-8 saat sürer ve tek seansta tamamlanır. Gereken greft sayısı dökülmenin derecesine ve hedeflenen yoğunluğa göre kişiden kişiye değişir; ücretsiz konsültasyonda fotoğraflarınıza göre net bir plan çıkarıyoruz.",
+      faq_q3: "FUE, DHI ve Safir FUE arasındaki fark nedir?",
+      faq_a3: "Üçü de modern, dikişsiz tekniklerdir. FUE'de greftler tek tek alınır; Safir FUE'de kanallar safir uçlu bıçaklarla açılarak daha hızlı iyileşme sağlanır; DHI'da greftler özel kalemle doğrudan ekilir ve sık, doğal bir saç çizgisi elde edilir. Size en uygun yöntemi uzmanımız belirler.",
+      faq_q4: "Ekilen saçlar kalıcı mı, dökülür mü?",
+      faq_a4: "Ekilen saçlar genetik olarak dökülmeye dirençli bölgeden alındığı için kalıcıdır ve ömür boyu çıkmaya devam eder. İlk haftalarda yaşanan 'şok dökülme' normaldir; bu saçlar 3-4 ay içinde yeniden ve kalıcı olarak çıkar.",
+      faq_q5: "İyileşme süreci nasıl, ne zaman işe dönerim?",
+      faq_a5: "Çoğu hasta 2-3 gün içinde günlük hayatına döner. İlk 10 gün ekim bölgesinin korunması önemlidir. Kabuklanma yaklaşık 10 günde geçer; kalıcı ve doğal sonuç ise 12 ayda tam olarak ortaya çıkar.",
+      faq_q6: "Yurt dışından gelen hastalar için süreç nasıl işler?",
+      faq_a6: "Yurt dışındaki misafirlerimiz için süreci baştan sona biz planlıyoruz: havaalanı transferi, konaklama ve operasyon dahil. WhatsApp'tan fotoğraflarınızı gönderin, size özel tedavi ve seyahat planını birlikte oluşturalım.",
     },
     en: {
       nav_about: "About Us",
@@ -470,7 +489,7 @@ document.addEventListener('DOMContentLoaded', () => {
       about_label: "ABOUT US",
       about_title: "Turkey's <span class=\"text-accent\">Trusted Hair Transplant Clinic</span>",
       about_text1: "Visit Hair Clinic is one of Turkey's leading hair transplant clinics, with over 9 years of field experience and more than 5,000 successful operations. At our modern center in Istanbul, we deliver natural and lasting results to guests from all around the world.",
-      about_text2: "With the latest techniques — including FUE, DHI and Sapphire FUE — we provide personalized hairline design, an expert team and an end-to-end planned experience. Led by our founder and lead specialist Sedat Kuren, hygiene, trust and aesthetics are always our priority.",
+      about_text2: "With the latest techniques — including FUE, DHI and Sapphire FUE — we provide personalized hairline design, an expert team and an end-to-end planned experience. Led by Sedat Kuren, hygiene, trust and aesthetics are always our priority.",
       about_badge: "Years Experience",
       about_f1_title: "Modern Clinic & Hygiene",
       about_f1_text: "Sterile operating-room standards",
@@ -549,7 +568,7 @@ document.addEventListener('DOMContentLoaded', () => {
       country_sa: "Saudi Arabia",
       country_it: "Italy",
       country_jo: "Jordan",
-      country_ae: "Dubai",
+      country_ae: "United Arab Emirates",
       test_label: "TESTIMONIALS",
       test_title: "What Our <span class=\"text-accent\">Patients Say</span>",
       test1_text: "\"It was a professional experience from start to finish. I'm very pleased with the results. Mr. Sedat and his team did a wonderful job.\"",
@@ -580,6 +599,21 @@ document.addEventListener('DOMContentLoaded', () => {
       cookie_text: "This website uses cookies to improve your experience. By using our site, you accept our <a href=\"privacy.html\">Privacy Policy</a> and <a href=\"kvkk.html\">KVKK Disclosure</a>.",
       cookie_accept: "Accept",
       cookie_decline: "Decline",
+      faq_label: "FREQUENTLY ASKED QUESTIONS",
+      faq_title: "Your <span class=\"text-accent\">Questions</span> Answered",
+      faq_desc: "We've answered the most common questions about hair transplantation for you.",
+      faq_q1: "Is a hair transplant painful?",
+      faq_a1: "The procedure is performed under local anesthesia, so you won't feel pain during the operation. Any mild tenderness afterwards is easily managed with prescribed painkillers.",
+      faq_q2: "How long does it take and how many grafts are needed?",
+      faq_a2: "The operation usually takes 6-8 hours and is completed in a single session. The number of grafts depends on the degree of hair loss and your target density; during a free consultation we create a clear plan based on your photos.",
+      faq_q3: "What is the difference between FUE, DHI and Sapphire FUE?",
+      faq_a3: "All three are modern, stitch-free techniques. In FUE grafts are extracted one by one; Sapphire FUE uses sapphire blades for faster healing; DHI implants grafts directly with a special pen for a dense, natural hairline. Our specialist selects the best method for you.",
+      faq_q4: "Are the transplanted hairs permanent?",
+      faq_a4: "Yes. The transplanted hairs are taken from a genetically loss-resistant area, so they are permanent and grow for a lifetime. The 'shock loss' in the first weeks is normal; these hairs regrow permanently within 3-4 months.",
+      faq_q5: "What is the recovery like and when can I return to work?",
+      faq_a5: "Most patients return to daily life within 2-3 days. Protecting the recipient area is important for the first 10 days. Scabbing clears in about 10 days, and the permanent, natural result fully appears within 12 months.",
+      faq_q6: "How does the process work for international patients?",
+      faq_a6: "For our international guests we plan everything end to end: airport transfer, accommodation and the operation. Send your photos via WhatsApp and we'll build a personalized treatment and travel plan together.",
     },
     ar: {
       nav_about: "من نحن",
@@ -601,7 +635,7 @@ document.addEventListener('DOMContentLoaded', () => {
       about_label: "من نحن",
       about_title: "العيادة <span class=\"text-accent\">الموثوقة لزراعة الشعر في تركيا</span>",
       about_text1: "تُعد Visit Hair Clinic من العيادات الرائدة في زراعة الشعر في تركيا، بخبرة ميدانية تتجاوز 9 سنوات وأكثر من 5000 عملية ناجحة. في مركزنا الحديث في إسطنبول، نقدم نتائج طبيعية ودائمة لضيوفنا من جميع أنحاء العالم.",
-      about_text2: "بأحدث التقنيات — بما في ذلك FUE وDHI والياقوت FUE — نوفر تصميم خط شعر مخصص وفريقاً متخصصاً وتجربة مخطط لها من البداية إلى النهاية. بقيادة مؤسسنا وكبير الأخصائيين سيدات كورين، تظل النظافة والثقة والجمال أولويتنا دائماً.",
+      about_text2: "بأحدث التقنيات — بما في ذلك FUE وDHI والياقوت FUE — نوفر تصميم خط شعر مخصص وفريقاً متخصصاً وتجربة مخطط لها من البداية إلى النهاية. بقيادة سيدات كورين، تظل النظافة والثقة والجمال أولويتنا دائماً.",
       about_badge: "سنوات الخبرة",
       about_f1_title: "عيادة حديثة ونظافة",
       about_f1_text: "معايير غرفة عمليات معقمة",
@@ -680,7 +714,7 @@ document.addEventListener('DOMContentLoaded', () => {
       country_sa: "السعودية",
       country_it: "إيطاليا",
       country_jo: "الأردن",
-      country_ae: "دبي",
+      country_ae: "الإمارات العربية المتحدة",
       test_label: "آراء العملاء",
       test_title: "ماذا يقول <span class=\"text-accent\">مرضانا</span>",
       test1_text: "\"كانت تجربة احترافية من البداية إلى النهاية. أنا سعيد جداً بالنتائج. قدّم السيد سيدات وفريقه عملاً رائعاً.\"",
@@ -711,6 +745,21 @@ document.addEventListener('DOMContentLoaded', () => {
       cookie_text: "يستخدم هذا الموقع ملفات تعريف الارتباط لتحسين تجربتك. باستخدامك للموقع فإنك توافق على <a href=\"privacy.html\">سياسة الخصوصية</a> و<a href=\"kvkk.html\">بيان KVKK</a>.",
       cookie_accept: "قبول",
       cookie_decline: "رفض",
+      faq_label: "الأسئلة الشائعة",
+      faq_title: "إجابات على <span class=\"text-accent\">أسئلتك</span>",
+      faq_desc: "أجبنا لك عن أكثر الأسئلة شيوعًا حول زراعة الشعر.",
+      faq_q1: "هل زراعة الشعر مؤلمة؟",
+      faq_a1: "تُجرى العملية تحت التخدير الموضعي، لذا لن تشعر بأي ألم أثناءها. وأي حساسية خفيفة بعدها يمكن التحكم بها بسهولة عبر المسكنات الموصوفة.",
+      faq_q2: "كم تستغرق العملية وكم عدد البصيلات اللازمة؟",
+      faq_a2: "تستغرق العملية عادةً من 6 إلى 8 ساعات وتكتمل في جلسة واحدة. يعتمد عدد البصيلات على درجة التساقط والكثافة المطلوبة؛ وخلال الاستشارة المجانية نضع خطة واضحة بناءً على صورك.",
+      faq_q3: "ما الفرق بين FUE وDHI وSapphire FUE؟",
+      faq_a3: "جميعها تقنيات حديثة بدون خياطة. في FUE تُقتطف البصيلات واحدة تلو الأخرى؛ وتستخدم Sapphire FUE شفرات الياقوت لشفاء أسرع؛ بينما تزرع DHI البصيلات مباشرة بقلم خاص للحصول على خط شعر كثيف وطبيعي. يحدد أخصائينا الطريقة الأنسب لك.",
+      faq_q4: "هل الشعر المزروع دائم؟",
+      faq_a4: "نعم. تؤخذ البصيلات من منطقة مقاومة وراثيًا للتساقط، لذا فهي دائمة وتنمو مدى الحياة. التساقط الصدمي في الأسابيع الأولى أمر طبيعي، وتنمو هذه الشعرات من جديد بشكل دائم خلال 3-4 أشهر.",
+      faq_q5: "كيف تكون فترة التعافي ومتى أعود إلى العمل؟",
+      faq_a5: "يعود معظم المرضى إلى حياتهم اليومية خلال 2-3 أيام. حماية المنطقة المزروعة مهمة في أول 10 أيام. تختفي القشور خلال 10 أيام تقريبًا، وتظهر النتيجة الدائمة والطبيعية بالكامل خلال 12 شهرًا.",
+      faq_q6: "كيف تسير العملية للمرضى القادمين من الخارج؟",
+      faq_a6: "لضيوفنا الدوليين نخطط لكل شيء من البداية إلى النهاية: استقبال المطار، الإقامة، والعملية. أرسل صورك عبر واتساب وسنضع معًا خطة علاج وسفر مخصصة لك.",
     }
   };
 

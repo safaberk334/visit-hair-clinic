@@ -1763,34 +1763,82 @@ ul, ol { list-style: none; }
 
   .container { padding: 0 20px; }
 
+  /* Mobil menu = sagdan kayan drawer (yandan sekme) */
   .header__nav {
-    display: none;
+    display: flex;
     position: fixed;
-    top: var(--header-height);
-    left: 0;
+    top: 0;
     right: 0;
     bottom: 0;
-    background: rgba(255,255,255,0.97);
-    backdrop-filter: blur(24px);
+    width: 82%;
+    max-width: 340px;
+    height: 100vh;
+    height: 100dvh;
+    background: #ffffff;
+    z-index: 1200;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: 2px;
+    padding: calc(var(--header-height) + 16px) 0 32px;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    box-shadow: -10px 0 36px rgba(0,0,0,0.16);
+    overscroll-behavior: contain;
   }
 
-  .header__nav.active { display: flex; }
+  .header__nav.active { transform: translateX(0); }
+
+  /* Drawer arka plan karartmasi */
+  .nav-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease;
+    z-index: 1150;
+  }
+  .nav-backdrop.active { opacity: 1; visibility: visible; }
 
   .header__link {
-    font-size: 18px;
-    padding: 14px 28px;
+    font-size: 17px;
+    padding: 16px 28px;
     color: var(--color-text);
+    text-align: left;
+    width: 100%;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
   }
 
   .header__link:hover {
     color: var(--color-primary);
   }
 
-  .header__hamburger { display: flex; }
+  .header__link--cta {
+    margin: 14px 24px 0;
+    width: auto;
+    text-align: center;
+    border-radius: 999px;
+    border-bottom: none;
+  }
+
+  .header__hamburger { display: flex; position: relative; z-index: 1300; }
+
+  /* Mobilde header her zaman temiz beyaz zemin + drawer ustunde kalsin (hamburger tiklanabilir) */
+  .header {
+    background: rgba(255,255,255,0.97);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: 0 1px 12px rgba(0,0,0,0.05);
+    z-index: 1300;
+  }
+  .header__actions { gap: 10px; }
+  .header__logo-img,
+  .header--scrolled .header__logo-img { height: 38px; }
+  .lang-switcher { gap: 1px; padding: 2px; }
+  .lang-btn { padding: 5px 11px; font-size: 10.5px; letter-spacing: 0.3px; }
 
   .services__grid { grid-template-columns: 1fr; }
   .results__gallery { grid-template-columns: 1fr; }
@@ -1822,9 +1870,73 @@ ul, ol { list-style: none; }
 
 @media (max-width: 480px) {
   .container { padding: 0 16px; }
+  .header__logo-img,
+  .header--scrolled .header__logo-img { height: 34px; }
+  .header__actions { gap: 7px; }
+  .lang-btn { padding: 4px 8px; font-size: 10px; letter-spacing: 0.2px; }
+  .header__hamburger { padding: 6px; }
   .hero__stats { flex-direction: row; flex-wrap: wrap; justify-content: center; }
   .hero__stat { min-width: 120px; }
   .contact__form-wrapper { padding: 28px; }
   .tourism__countries { padding: 28px; }
   .tourism__flags { grid-template-columns: 1fr; }
+}
+
+/* ============================================ */
+/* FAQ / SIKÇA SORULAN SORULAR                  */
+/* ============================================ */
+.faq__list {
+  max-width: 840px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.faq__item {
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  transition: box-shadow var(--transition), border-color var(--transition);
+}
+.faq__item[open] {
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-blue);
+}
+.faq__q {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 22px 26px;
+  cursor: pointer;
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 1.05rem;
+  color: var(--color-text);
+  list-style: none;
+  transition: color var(--transition);
+}
+.faq__q::-webkit-details-marker { display: none; }
+.faq__q:hover { color: var(--color-blue); }
+.faq__icon {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  color: var(--color-blue);
+  transition: transform var(--transition);
+}
+.faq__item[open] .faq__icon { transform: rotate(180deg); }
+.faq__a {
+  padding: 0 26px 24px;
+  color: var(--color-text-light);
+  line-height: 1.75;
+  font-size: 1rem;
+}
+.faq__a p { margin: 0; }
+[dir="rtl"] .faq__q { text-align: right; }
+@media (max-width: 480px) {
+  .faq__q { padding: 18px 18px; font-size: 0.98rem; }
+  .faq__a { padding: 0 18px 20px; }
 }
