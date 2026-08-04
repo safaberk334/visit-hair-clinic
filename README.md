@@ -4,9 +4,9 @@ A premium, fully responsive website for **Visit Hair Clinic** — a leading hair
 
 ![Screenshot](screenshot.png)
 
-## Live Demo
+## Live Site
 
-[https://safaberk334.github.io/visit-hair-clinic/](https://safaberk334.github.io/visit-hair-clinic/)
+[visithairclinic.com](https://visithairclinic.com)
 
 ## Features
 
