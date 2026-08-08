@@ -12,7 +12,7 @@ NOT: Metinler mevcut Turkce sayfalarin sadik cevirisidir. Italyanca/AB
 ziyaretcileri icin GDPR'a ozgu ek yukumlulukler bir avukatla dogrulanmalidir.
 """
 
-E = "info@visithairclinic.com"
+E = "visithairclinic@gmail.com"
 UPDATED = {"tr": "Son güncelleme: 2 Haziran 2026",
            "en": "Last updated: 2 June 2026",
            "ar": "آخر تحديث: 2 يونيو 2026",

@@ -94,7 +94,7 @@ def build_head_html(lang, t):
         "url": canon,
         "logo": f"{DOMAIN}/img/logo/logo-transparent.png",
         "image": f"{DOMAIN}/img/og-image.jpg",
-        "email": "info@visithairclinic.com",
+        "email": "visithairclinic@gmail.com",
         "telephone": "+905078814325",
         "medicalSpecialty": "PlasticSurgery",
         "priceRange": "$$",
