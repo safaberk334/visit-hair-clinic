@@ -1,0 +1,45 @@
+# Visit Hair Clinic — Netlify yapilandirmasi
+#
+# Site onceden uretilmis statik HTML'den ibaret. Sayfalar yerelde
+#   python gen_i18n.py && python gen_legal.py
+# ile uretilip commit ediliyor, bu yuzden Netlify'da build adimi yok.
+# (gen_i18n.py lxml'e bagli; derlemeyi yerelde tutmak CI'yi kirilgan yapmiyor.)
+
+[build]
+  publish = "."
+
+# --- Kaynak dosyalar yayina cikmasin -----------------------------------
+# Depo koku ayni zamanda yayin klasoru oldugu icin sablon ve uretici
+# scriptler de sunuluyordu. _template.html ana sayfanin neredeyse birebir
+# kopyasi; Google'in bunu ayri bir sayfa olarak indekslemesi duplicate
+# content demek. Hepsi 404 donuyor.
+
+[[redirects]]
+  from = "/_template.html"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/gen_i18n.py"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/gen_legal.py"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/i18n/*"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/README.md"
+  to = "/404.html"
+  status = 404
+  force = true
