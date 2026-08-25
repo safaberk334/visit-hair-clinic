@@ -43,3 +43,22 @@
   to = "/404.html"
   status = 404
   force = true
+
+# main.src.js ceviri blogunu iceren kaynak dosya; yayina cikan surum
+# js/main.js. 48 KB olu agirlik, taranmasinin da faydasi yok.
+[[redirects]]
+  from = "/js/main.src.js"
+  to = "/404.html"
+  status = 404
+  force = true
+
+# --- Guvenlik basliklari ---------------------------------------------
+# X-Frame-Options ve CSP bilerek eklenmedi: main.js onizlemede iframe
+# tespiti yapiyor, CSS/JS de unpkg + fonts.googleapis'ten geliyor.
+# Bu ikisi once self-host'a gecince guvenle eklenebilir.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "geolocation=(), microphone=(), camera=()"

@@ -4,18 +4,41 @@
 
 document.addEventListener('DOMContentLoaded', () => {
 
+  // ── Aktif dil (HTML lang'inden) ──
+  // gen_i18n.py ceviri blogunu main.js'ten cikardigi icin dil artik
+  // <html lang> uzerinden okunuyor. Bu satir blogun DISINDA kalmali,
+  // yoksa main.js'te currentLang tanimsiz kalir ve form coker.
+  let currentLang = (document.documentElement.lang || 'en').slice(0, 2).toLowerCase();
+
+  // ── Ucuncu parti kutuphaneler icin koruma ──
+  // unpkg.com'a ulasilamazsa (CDN kesintisi, reklam engelleyici, yavas
+  // baglanti) AOS/lucide tanimsiz kalir. Korumasiz cagri butun
+  // DOMContentLoaded blogunu dusurur: menu, lightbox, cerez banneri ve
+  // iletisim formu birlikte olur. Ustelik aos.css [data-aos] ogelerini
+  // opacity:0 yaptigi icin sayfa bombos gorunur.
+  const drawIcons = function () {
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+  };
+
   // ── Initialize AOS (Animate on Scroll) ──
   const isInIframe = window.self !== window.top;
-  AOS.init({
-    duration: isInIframe ? 0 : 800,
-    easing: 'ease-out-cubic',
-    once: true,
-    offset: isInIframe ? -9999 : 80,
-    disable: isInIframe ? false : (window.innerWidth < 768 ? 'phone' : false)
-  });
+  if (typeof AOS !== 'undefined') {
+    AOS.init({
+      duration: isInIframe ? 0 : 800,
+      easing: 'ease-out-cubic',
+      once: true,
+      offset: isInIframe ? -9999 : 80,
+      disable: isInIframe ? false : (window.innerWidth < 768 ? 'phone' : false)
+    });
+  } else {
+    // AOS yok: aos.css'in gizledigi icerigi geri ac.
+    document.querySelectorAll('[data-aos]').forEach(function (el) {
+      el.removeAttribute('data-aos');
+    });
+  }
 
   // ── Initialize Lucide Icons ──
-  lucide.createIcons();
+  drawIcons();
 
   // ── Header Scroll Effect ──
   const header = document.getElementById('header');
@@ -151,19 +174,20 @@ document.addEventListener('DOMContentLoaded', () => {
   const WHATSAPP_NUMBER = '905078814325';
   const form = document.getElementById('contact-form');
   if (form) {
-    const openByLang = { tr: 'WhatsApp açılıyor…', en: 'Opening WhatsApp…', ar: 'يتم فتح واتساب…' };
+    const openByLang = { tr: 'WhatsApp açılıyor…', en: 'Opening WhatsApp…', ar: 'يتم فتح واتساب…', it: 'Apertura di WhatsApp…' };
 
     // Mesaj alan etiketleri (dile göre)
     const labels = {
       tr: { title: 'Ücretsiz Konsültasyon Talebi', name: 'Ad Soyad', email: 'E-posta', phone: 'Telefon', country: 'Ülke', message: 'Mesaj' },
       en: { title: 'Free Consultation Request', name: 'Name', email: 'Email', phone: 'Phone', country: 'Country', message: 'Message' },
-      ar: { title: 'طلب استشارة مجانية', name: 'الاسم', email: 'البريد', phone: 'الهاتف', country: 'الدولة', message: 'الرسالة' }
+      ar: { title: 'طلب استشارة مجانية', name: 'الاسم', email: 'البريد', phone: 'الهاتف', country: 'الدولة', message: 'الرسالة' },
+      it: { title: 'Richiesta di Consulenza Gratuita', name: 'Nome', email: 'Email', phone: 'Telefono', country: 'Paese', message: 'Messaggio' }
     };
 
     form.addEventListener('submit', (e) => {
       e.preventDefault();
 
-      const L = labels[currentLang] || labels.tr;
+      const L = labels[currentLang] || labels.en;
       const data = Object.fromEntries(new FormData(form));
       const lines = [`*${L.title}*`, ''];
       if (data.name)    lines.push(`${L.name}: ${data.name}`);
@@ -176,16 +200,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const btn = form.querySelector('button[type="submit"]');
       const originalText = btn.innerHTML;
-      btn.innerHTML = `<i data-lucide="check-circle"></i> <span>${openByLang[currentLang] || openByLang.tr}</span>`;
+      btn.innerHTML = `<i data-lucide="check-circle"></i> <span>${openByLang[currentLang] || openByLang.en}</span>`;
       btn.style.background = 'linear-gradient(135deg, #25D366, #128C7E)';
-      lucide.createIcons();
+      drawIcons();
 
       window.open(url, '_blank', 'noopener');
 
       setTimeout(() => {
         btn.innerHTML = originalText;
         btn.style.background = '';
-        lucide.createIcons();
+        drawIcons();
         form.reset();
       }, 3000);
     });

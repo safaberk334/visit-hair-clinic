@@ -152,6 +152,8 @@ def build_head_html(lang, t):
   <link rel="icon" type="image/png" sizes="512x512" href="/img/logo/favicon.png">
   <link rel="apple-touch-icon" href="/img/logo/apple-touch-icon.png">
 
+  <link rel="stylesheet" href="/css/style.css">
+
   <script type="application/ld+json">
 {json.dumps(clinic, ensure_ascii=False, indent=2)}
   </script>
