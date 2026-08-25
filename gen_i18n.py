@@ -245,11 +245,18 @@ def build_page(template_src, lang, translations):
         idx = list(parent).index(btns[0])
         for b in btns:
             parent.remove(b)
+        # Otomatik cevirmen "EN"/"IT" kodlarini kelime sanip ceviriyor
+        # (IT -> BT, EN -> TR). notranslate + translate="no" bunu keser.
+        pcls = parent.get("class", "")
+        if "notranslate" not in pcls.split():
+            parent.set("class", (pcls + " notranslate").strip())
+        parent.set("translate", "no")
         for i, l in enumerate(LANGS):
             a = etree.SubElement(parent, "a")
-            a.set("class", cls + (" active" if l == lang else ""))
+            a.set("class", cls + " notranslate" + (" active" if l == lang else ""))
             a.set("href", "/" + LANGS[l][0])
             a.set("hreflang", LANGS[l][1])
+            a.set("translate", "no")
             a.text = LANG_LABEL[l]
             parent.remove(a); parent.insert(idx + i, a)
 

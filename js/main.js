@@ -94,6 +94,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const counters = document.querySelectorAll('.hero__stat-number');
   let countersAnimated = false;
 
+  // Binlik ayraci sayfa metniyle ayni olmali. Intl'e birakilamiyor:
+  // it-IT 4 haneliyi gruplamaz ('5000') ama kopya 'Oltre 5.000' der.
+  // Arapca sayfa Bati rakamlari ve ayracsiz yazim kullaniyor.
+  const groupSep = { tr: '.', en: ',', ar: '', it: '.' }[currentLang];
+  const formatNum = function (n) {
+    const sep = groupSep === undefined ? ',' : groupSep;
+    return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, sep);
+  };
+
   const animateCounters = () => {
     if (countersAnimated) return;
     countersAnimated = true;
@@ -110,7 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const current = Math.floor(eased * target);
 
         if (target >= 1000) {
-          counter.textContent = current.toLocaleString('tr-TR');
+          counter.textContent = formatNum(current);
         } else {
           counter.textContent = current;
         }
@@ -119,7 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
           requestAnimationFrame(step);
         } else {
           if (target >= 1000) {
-            counter.textContent = target.toLocaleString('tr-TR');
+            counter.textContent = formatNum(target);
           } else {
             counter.textContent = target;
           }
