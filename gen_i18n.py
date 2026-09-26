@@ -228,6 +228,10 @@ def build_page(template_src, lang, translations):
         v = el.get("src")
         if v:
             el.set("src", absolutize(v))
+    # lightbox'in buyuk gorsel yolu: relatif kalirsa /tr/ /ar/ /it/ altinda
+    # /tr/img/... diye 404'e gidiyor, mobilde kirik resim ikonu kaliyordu
+    for el in doc.xpath("//*[@data-full]"):
+        el.set("data-full", absolutize(el.get("data-full")))
 
     # 4b) yasal sayfa linkleri dile gore: /privacy.html -> /it/privacy.html
     for el in doc.xpath("//*[@href]"):

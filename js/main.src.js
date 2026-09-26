@@ -10,6 +10,17 @@ document.addEventListener('DOMContentLoaded', () => {
   // yoksa main.js'te currentLang tanimsiz kalir ve form coker.
   let currentLang = (document.documentElement.lang || 'en').slice(0, 2).toLowerCase();
 
+  // ── Elle secilen dil hatirlansin ──
+  // Netlify ana sayfada tarayici diline gore /tr/ /ar/ /it/'e yonlendiriyor
+  // (netlify.toml). nf_lang cerezi bu tespiti ezer; yoksa Turkce telefondan
+  // EN'e gecen kullanici ana sayfaya her donuste yine /tr/'ye atilir.
+  document.querySelectorAll('a.lang-btn, a.lang-btn-sm').forEach(a => {
+    a.addEventListener('click', () => {
+      const l = (a.getAttribute('hreflang') || '').slice(0, 2);
+      if (l) document.cookie = 'nf_lang=' + l + '; path=/; max-age=31536000; SameSite=Lax';
+    });
+  });
+
   // ── Ucuncu parti kutuphaneler icin koruma ──
   // unpkg.com'a ulasilamazsa (CDN kesintisi, reklam engelleyici, yavas
   // baglanti) AOS/lucide tanimsiz kalir. Korumasiz cagri butun

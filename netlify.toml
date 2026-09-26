@@ -8,6 +8,32 @@
 [build]
   publish = "."
 
+# --- Ana sayfada tarayici diline gore yonlendirme ----------------------
+# Kok (EN) x-default olarak kaliyor; Googlebot Accept-Language gondermedigi
+# icin EN'i gorur. Telefonu Turkce/Arapca/Italyanca olan ziyaretci kendi
+# diline gider. Dil secicide elle secilen dil nf_lang cereziyle (main.js)
+# bu tespiti ezer. force: kokte index.html var, yoksa kural atlanir.
+[[redirects]]
+  from = "/"
+  to = "/tr/"
+  status = 302
+  force = true
+  conditions = {Language = ["tr"]}
+
+[[redirects]]
+  from = "/"
+  to = "/ar/"
+  status = 302
+  force = true
+  conditions = {Language = ["ar"]}
+
+[[redirects]]
+  from = "/"
+  to = "/it/"
+  status = 302
+  force = true
+  conditions = {Language = ["it"]}
+
 # --- Kaynak dosyalar yayina cikmasin -----------------------------------
 # Depo koku ayni zamanda yayin klasoru oldugu icin sablon ve uretici
 # scriptler de sunuluyordu. _template.html ana sayfanin neredeyse birebir
